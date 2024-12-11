@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DECIMAL, String
+from sqlalchemy import Column, DECIMAL, String, Integer
 
 from app.core.constants import (
     CATEGORY_MAX_LEN, PRICE_PRECISION, PRICE_SCALE, PRODUCT_NAME_MAX_LEN
@@ -18,5 +18,10 @@ class Product(Base):
     )
     category = Column(
         String(CATEGORY_MAX_LEN),
+        nullable=False
+    )
+
+    in_stock = Column(
+        Integer(),
         nullable=False
     )
