@@ -1,4 +1,7 @@
-from pydantic import BaseModel, Field, validator
+from typing import Optional
+from fastapi import HTTPException
+from http import HTTPStatus
+from pydantic import BaseModel, Field, validator, root_validator
 
 
 class CartCreate(BaseModel):
@@ -19,3 +22,19 @@ class CartDB(CartCreate):
 
     class Config:
         orm_mode = True
+
+class CartUpdate(CartCreate):
+    product_id: Optional[int]
+
+    @root_validator(pre=True)
+    def check_forbidden_fields(cls, values):
+        forbidden_fields = {
+            "id", "product_id"
+        }
+        for field in forbidden_fields:
+            if field in values:
+                raise HTTPException(
+                    status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+                    detail=f'Нельзя изменять поле {field}',
+                )
+        return values

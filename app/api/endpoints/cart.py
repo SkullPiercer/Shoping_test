@@ -5,8 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User, Product
 from app.core.db import get_async_session
 from app.crud.cart import cart_crud
+from app.crud.product import product_crud
 from app.core.user import current_user, current_superuser
-from app.schemas.cart import CartCreate, CartDB
+from app.schemas.cart import CartCreate, CartDB, CartUpdate
 from app.schemas.product import ProductDB
 from app.api.validators import (
     check_product_exist,
@@ -56,10 +57,29 @@ async def add_product_to_cart(
     response_model=CartDB,
     response_model_exclude_none=True,
 )
-async def remove_project(
+async def remove_cart_position(
         product_id: int,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
     cart_position = await check_cart_position_exist(product_id, user, session)
     return await cart_crud.remove(cart_position, session)
+
+
+@router.patch(
+    '/{product_id}',
+    response_model=CartDB,
+    response_model_exclude_none=True,
+)
+async def update_cart_position(
+    product_id: int,
+    obj_in: CartUpdate,
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user)
+):
+
+    cart_position = await check_cart_position_exist(product_id, user, session)
+    product = await product_crud.get(product_id, session)
+    await comparison_of_quantity_with_stock(obj_in.quantity, product.in_stock)
+
+    return await cart_crud.update(cart_position, obj_in, session)
