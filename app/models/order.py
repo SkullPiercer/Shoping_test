@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DECIMAL, ForeignKey, Integer
+from sqlalchemy import Column, DECIMAL, ForeignKey, Integer, String
 
 from app.core.constants import (
     PRICE_PRECISION, PRICE_SCALE
@@ -17,4 +17,4 @@ class Order(Base):
         nullable=False
     )
 
-    status = Column(Boolean, default=False)
+    status = Column(String, default='pending')
