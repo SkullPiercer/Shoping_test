@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get(
     '/',
-    response_model=list[ProductDB],
+    response_model=list[CartDB],
     response_model_exclude_none=True,
     response_model_exclude_unset=True,
 
@@ -32,7 +32,7 @@ async def get_user_cart(
 
 @router.post(
     '/',
-    response_model=ProductDB,
+    response_model=CartDB,
     response_model_exclude_none=True,
     response_model_exclude_unset=True,
 
@@ -44,5 +44,5 @@ async def add_product_to_cart(
 ):
     product = await check_product_exist(cart.product_id, session)
     await comparison_of_quantity_with_stock(cart.quantity, product.in_stock)
-    new_position_in_cart = cart_crud.create(cart, session, user)
-    return product
+    new_position_in_cart = await cart_crud.create(obj_in=cart, session=session, user=user)
+    return new_position_in_cart
