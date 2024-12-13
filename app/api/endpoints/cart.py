@@ -2,11 +2,11 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User
+from app.models import User, Product
 from app.core.db import get_async_session
 from app.crud.cart import cart_crud
 from app.core.user import current_user, current_superuser
-from app.schemas.cart import CartCreate
+from app.schemas.cart import CartCreate, CartDB
 from app.schemas.product import ProductDB
 from app.api.validators import (
     check_product_exist,
@@ -44,6 +44,5 @@ async def add_product_to_cart(
 ):
     product = await check_product_exist(cart.product_id, session)
     await comparison_of_quantity_with_stock(cart.quantity, product.in_stock)
-
-
+    new_position_in_cart = cart_crud.create(cart, session, user)
     return product

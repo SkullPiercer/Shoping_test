@@ -42,5 +42,5 @@ async def comparison_of_quantity_with_stock(
     if quantity > in_stock:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
-            detail='На складе нет столько товара!'
+            detail='На складе в данный момент нет столько товара!'
         )
