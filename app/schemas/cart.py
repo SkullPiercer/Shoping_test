@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, validator
 
 
 class CartCreate(BaseModel):
-    product_name: str
+    product_id: int
     quantity: int
 
     @validator('quantity')
