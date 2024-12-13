@@ -8,7 +8,10 @@ from app.crud.cart import cart_crud
 from app.core.user import current_user, current_superuser
 from app.schemas.cart import CartCreate
 from app.schemas.product import ProductDB
-from app.api.validators import check_product_exist
+from app.api.validators import (
+    check_product_exist,
+    comparison_of_quantity_with_stock
+)
 
 router = APIRouter()
 
@@ -35,9 +38,12 @@ async def get_user_cart(
 
 )
 async def add_product_to_cart(
-        product: CartCreate,
+        cart: CartCreate,
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):
-    a = await check_product_exist(product.product_id, session)
-    return a
+    product = await check_product_exist(cart.product_id, session)
+    await comparison_of_quantity_with_stock(cart.quantity, product.in_stock)
+
+
+    return product

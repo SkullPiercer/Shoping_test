@@ -34,3 +34,13 @@ async def check_product_exist(
            detail='Продукт не найден!'
        )
    return product
+
+async def comparison_of_quantity_with_stock(
+    quantity: int,
+    in_stock: int
+) -> None:
+    if quantity > in_stock:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='На складе нет столько товара!'
+        )
