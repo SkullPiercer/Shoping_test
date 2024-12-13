@@ -59,10 +59,6 @@ async def check_cart_position_exist(
     )
     cart_item = result.scalars().first()
 
-    if not cart_item:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
-            detail=f"У вас в корзине нет такого товара!"
-        )
+
 
     return cart_item

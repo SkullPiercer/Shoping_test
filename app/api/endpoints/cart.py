@@ -2,6 +2,8 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from http import HTTPStatus
+from fastapi import HTTPException
 from app.models import User, Product
 from app.core.db import get_async_session
 from app.crud.cart import cart_crud
@@ -47,6 +49,15 @@ async def add_product_to_cart(
         user: User = Depends(current_user)
 ):
     product = await check_product_exist(cart.product_id, session)
+    cart_position = await check_cart_position_exist(cart.product_id, user, session)
+
+    if cart_position:
+        cart_position.quantity += cart.quantity
+        await comparison_of_quantity_with_stock(cart_position.quantity, product.in_stock)
+        await session.commit()
+        await session.refresh(cart_position)
+        return cart_position
+
     await comparison_of_quantity_with_stock(cart.quantity, product.in_stock)
     new_position_in_cart = await cart_crud.create(obj_in=cart, session=session, user=user)
     return new_position_in_cart
@@ -72,13 +83,17 @@ async def remove_cart_position(
     response_model_exclude_none=True,
 )
 async def update_cart_position(
-    product_id: int,
-    obj_in: CartUpdate,
-    session: AsyncSession = Depends(get_async_session),
-    user: User = Depends(current_user)
+        product_id: int,
+        obj_in: CartUpdate,
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user)
 ):
-
     cart_position = await check_cart_position_exist(product_id, user, session)
+    if not cart_position:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f"У вас в корзине нет такого товара!"
+        )
     product = await product_crud.get(product_id, session)
     await comparison_of_quantity_with_stock(obj_in.quantity, product.in_stock)
 
