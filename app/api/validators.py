@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
+from sqlalchemy import select
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.product import product_crud
-from app.models import Product
+from app.models import Product, Cart, User
 
 
 async def check_name_duplicate(
@@ -41,6 +42,27 @@ async def comparison_of_quantity_with_stock(
 ) -> None:
     if quantity > in_stock:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND,
+            status_code=HTTPStatus.BAD_REQUEST,
             detail='На складе в данный момент нет столько товара!'
         )
+
+async def check_cart_position_exist(
+        product_id: int,
+        user: User,
+        session: AsyncSession
+) -> Product:
+    result = await session.execute(
+        select(Cart).where(
+            Cart.product_id == product_id,
+            Cart.user_id == user.id
+        )
+    )
+    cart_item = result.scalars().first()
+
+    if not cart_item:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail=f"У вас в корзине нет такого товара!"
+        )
+
+    return cart_item

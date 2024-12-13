@@ -10,10 +10,12 @@ from app.schemas.cart import CartCreate, CartDB
 from app.schemas.product import ProductDB
 from app.api.validators import (
     check_product_exist,
-    comparison_of_quantity_with_stock
+    comparison_of_quantity_with_stock,
+    check_cart_position_exist
 )
 
 router = APIRouter()
+
 
 @router.get(
     '/',
@@ -29,6 +31,7 @@ async def get_user_cart(
     return await cart_crud.get_user_cart(
         session=session, user=user
     )
+
 
 @router.post(
     '/',
@@ -46,3 +49,17 @@ async def add_product_to_cart(
     await comparison_of_quantity_with_stock(cart.quantity, product.in_stock)
     new_position_in_cart = await cart_crud.create(obj_in=cart, session=session, user=user)
     return new_position_in_cart
+
+
+@router.delete(
+    '/{product_id}',
+    response_model=CartDB,
+    response_model_exclude_none=True,
+)
+async def remove_project(
+        product_id: int,
+        session: AsyncSession = Depends(get_async_session),
+        user: User = Depends(current_user)
+):
+    cart_position = await check_cart_position_exist(product_id, user, session)
+    return await cart_crud.remove(cart_position, session)
