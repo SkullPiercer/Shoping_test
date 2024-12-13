@@ -2,7 +2,8 @@ from pydantic import BaseModel, Field, validator
 
 
 class CartCreate(BaseModel):
-    quantity: int = Field()
+    product_name: str
+    quantity: int
 
     @validator('quantity')
     def quantity_can_not_be_le_zero(cls, value):
