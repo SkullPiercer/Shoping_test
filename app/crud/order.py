@@ -3,39 +3,49 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete, func
 
 from app.crud.base import CRUDBase
-from app.models import Cart, User, Product
+from app.models import Cart, User, Product, Order
 
 from app.core.constants import CART_EMPTY
 
+from app.crud.product import product_crud
+
 
 class CRUDOrder(CRUDBase):
-    async def calculate_total(
+    async def create_order(
             self,
-            user: User,
-            session: AsyncSession
-    ) -> float:
-        query = (
-            select(Cart, Product.price)
-            .join(Product, Product.id == Cart.product_id)
-            .where(Cart.user_id == user.id)
-        )
-        result = await session.execute(query)
-        cart_positions = result.all()
-        total = 0.0
-        for cart, price in cart_positions:
-            total += float(price) * cart.quantity
-
-        return total
-
-    async def clear_cart(
-            self,
-            user: User,
-            session: AsyncSession
+            session: AsyncSession,
+            user: User
     ):
+        # Получаем все товары из корзины пользователя
+        cart_items = await session.execute(
+            select(Cart).where(Cart.user_id == user.id)
+        )
+        cart_items = cart_items.scalars().all()
+
+        # Высчитываем итоговую стоимость
+        total_price = 0
+        for item in cart_items:
+            product = await product_crud.get(obj_id=item.product_id, session=session)
+            total_price += product.price * item.quantity
+            product.in_stock -= item.quantity
+            session.add(product)
+        # Создаем заказ
+        order_data = {
+            "user_id": user.id,
+            "total_price": total_price
+        }
+
+        order = self.model(**order_data)
+        session.add(order)
+
+        # (Опционально) Очищаем корзину после оформления заказа
         await session.execute(
             delete(Cart).where(Cart.user_id == user.id)
         )
         await session.commit()
+        await session.refresh(order)
+
+        return order
 
 
-order_crud = CRUDOrder(Cart)
+order_crud = CRUDOrder(Order)
