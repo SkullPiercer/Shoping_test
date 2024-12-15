@@ -1,21 +1,22 @@
-from fastapi import APIRouter
-from fastapi.params import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from http import HTTPStatus
-from fastapi import HTTPException
-from app.models import User, Product
-from app.core.db import get_async_session
-from app.crud.cart import cart_crud
-from app.crud.product import product_crud
-from app.core.user import current_user, current_superuser
-from app.schemas.cart import CartCreate, CartDB, CartUpdate
-from app.schemas.product import ProductDB
+
 from app.api.validators import (
     check_product_exist,
     comparison_of_quantity_with_stock,
     check_cart_position_exist
 )
+from fastapi import APIRouter
+from fastapi import HTTPException
+from fastapi.params import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.db import get_async_session
+from app.core.user import current_user
+from app.crud.cart import cart_crud
+from app.crud.product import product_crud
+from app.models import User
+from app.schemas.cart import CartCreate, CartDB, CartUpdate
+
 
 router = APIRouter()
 

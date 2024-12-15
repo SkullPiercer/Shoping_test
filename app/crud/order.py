@@ -30,7 +30,7 @@ class CRUDOrder(CRUDBase):
             if product.in_stock <= CART_EMPTY:
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail=f'Пока продукт находился в корзине yfkbxbt товара:{product} изменилось!',
+                    detail=f'Пока продукт находился в корзине, количество товара:{product} изменилось!',
                 )
             session.add(product)
 

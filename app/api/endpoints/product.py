@@ -9,6 +9,7 @@ from app.crud.product import product_crud
 from app.schemas.product import ProductCreate, ProductDB
 from app.core.user import current_superuser
 
+
 router = APIRouter()
 
 

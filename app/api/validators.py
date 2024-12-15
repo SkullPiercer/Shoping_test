@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
-from sqlalchemy import select
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.product import product_crud
@@ -26,25 +26,27 @@ async def check_product_exist(
         product_id: int,
         session: AsyncSession
 ) -> Product:
-   product = await product_crud.get(
-       product_id, session
-   )
-   if product is None:
-       raise HTTPException(
-           status_code=HTTPStatus.NOT_FOUND,
-           detail='Продукт не найден!'
-       )
-   return product
+    product = await product_crud.get(
+        product_id, session
+    )
+    if product is None:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND,
+            detail='Продукт не найден!'
+        )
+    return product
+
 
 async def comparison_of_quantity_with_stock(
-    quantity: int,
-    in_stock: int
+        quantity: int,
+        in_stock: int
 ) -> None:
     if quantity > in_stock:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail='На складе в данный момент нет столько товара!'
         )
+
 
 async def check_cart_position_exist(
         product_id: int,
@@ -58,7 +60,5 @@ async def check_cart_position_exist(
         )
     )
     cart_item = result.scalars().first()
-
-
 
     return cart_item
