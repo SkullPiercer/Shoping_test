@@ -23,7 +23,7 @@ async def checkout(
 @router.get(
     '/',
 )
-async def checkout(
+async def get_user_orders(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user)
 ):

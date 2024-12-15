@@ -1,7 +1,8 @@
 from typing import Optional
+
 from fastapi import HTTPException
 from http import HTTPStatus
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, validator, root_validator
 
 
 class CartCreate(BaseModel):
@@ -22,6 +23,7 @@ class CartDB(CartCreate):
 
     class Config:
         orm_mode = True
+
 
 class CartUpdate(CartCreate):
     product_id: Optional[int]

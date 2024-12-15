@@ -59,4 +59,6 @@ class CRUDOrder(CRUDBase):
             select(Order).where(Order.user_id == user.id)
         )
         return user_orders.scalars().all()
+
+
 order_crud = CRUDOrder(Order)

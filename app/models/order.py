@@ -6,7 +6,6 @@ from app.core.constants import (
 from app.core.db import Base
 
 
-
 class Order(Base):
     user_id = Column(
         Integer, ForeignKey('user.id', name='fk_order_user_id_user')

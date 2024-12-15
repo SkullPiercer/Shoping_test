@@ -93,7 +93,7 @@ async def update_cart_position(
     if not cart_position:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
-            detail=f"У вас в корзине нет такого товара!"
+            detail="У вас в корзине нет такого товара!"
         )
     product = await product_crud.get(product_id, session)
     await comparison_of_quantity_with_stock(obj_in.quantity, product.in_stock)
